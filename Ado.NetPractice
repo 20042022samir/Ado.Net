@@ -1,0 +1,136 @@
+﻿#region C#-repeat
+using System.Data.SqlClient;
+using System.Text;
+
+string connection = "Server=DESKTOP-2S0R6OF\\SQLEXPRESS;Database=RestoranDb;Trusted_Connection=True;";
+SqlConnection sqlConnection=new SqlConnection(connection);
+void StartApp()
+{
+    AGAINN: 
+    Console.WriteLine("choose one of the operations");
+    Console.WriteLine("0-->Stop the operation");
+    Console.WriteLine("1-->Add burger");
+    Console.WriteLine("2-->Show All the burgers");
+    Console.WriteLine("3-->Delete The burger");
+    Console.WriteLine("4-->Update Burger");
+    int.TryParse(Console.ReadLine(), out int choice);
+    switch (choice)
+    {
+        case 0:
+            break;
+        case 1:
+            Console.Clear();
+            AddBurger(); goto AGAINN;
+        case 2:
+            Console.Clear();
+            ShowBurgers(); goto AGAINN;
+        case 3:
+            Console.Clear();
+            DelteBurger(); goto AGAINN;
+        case 4:
+            Console.Clear();
+            UpdateBurger(); goto AGAINN;
+        default:
+            break;
+    }
+}
+void ShowBurgers()
+{
+    SqlCommand cmd = new SqlCommand("Select * from Burgers", sqlConnection);
+    sqlConnection.Open();
+    var result = cmd.ExecuteReader();
+    while (result.Read())
+    {
+        Console.WriteLine("name-->"+result["name"]+"  Price-->" + result["Price"]+"  Id-->" + result["Id"]);
+    }
+    sqlConnection.Close();
+}
+void AddBurger()
+{
+    Console.WriteLine("enter the name of Burger:");
+    string name=Console.ReadLine();
+    Console.WriteLine("enter the price of Burger:");
+    int.TryParse(Console.ReadLine(), out int Priceburger);
+    if (Check(name, Priceburger))
+    {
+        SqlCommand cmd = new SqlCommand($"Insert into Burgers Values('{name}','{Priceburger}')",sqlConnection);
+        sqlConnection.Open();
+        cmd.ExecuteNonQuery();
+        sqlConnection.Close();
+    }
+
+}
+void DelteBurger()
+{
+    Console.WriteLine("enter Id of the burger you wanna dekete!");
+    SqlCommand cmd = new SqlCommand("Select * from burgers", sqlConnection);
+    sqlConnection.Open();
+    var readerResult=cmd.ExecuteReader();
+    while (readerResult.Read())
+    {
+        Console.WriteLine(readerResult["name"]+"  Id-->" + readerResult["Id"]);
+    }
+    sqlConnection.Close();
+    int.TryParse(Console.ReadLine(), out int deletedId);
+    SqlCommand cmd2 = new SqlCommand($"Delete from Burgers where id={deletedId}",sqlConnection);
+    sqlConnection.Open();
+    cmd2.ExecuteNonQuery();
+    sqlConnection.Close();
+}
+void UpdateBurger()
+{
+    Console.WriteLine("enter id of the burger you wanna update!");
+    SqlCommand cmd = new SqlCommand("Select * from Burgers", sqlConnection);
+    sqlConnection.Open();
+    var result = cmd.ExecuteReader();
+    while (result.Read())
+    {
+        Console.WriteLine(result["name"]+" " + result["Id"]);
+    }
+    sqlConnection.Close();
+    int.TryParse(Console.ReadLine(), out int UpdatedburgerId);
+    Console.WriteLine("what do you wanna change about that burger?");
+    Console.WriteLine("1-->Name");
+    Console.WriteLine("2-->Price");
+    int.TryParse(Console.ReadLine(), out int UpdateChoice);
+    switch (UpdateChoice)
+    {
+        case 1:
+            Console.WriteLine("enter the new name");
+            string nameeUpdate = Console.ReadLine();
+            SqlCommand cmdd = new SqlCommand($"Update Burgers Set name='{nameeUpdate}' where Id={UpdatedburgerId}",sqlConnection);
+            sqlConnection.Open();
+            cmdd.ExecuteNonQuery();
+            sqlConnection.Close(); break;
+        case 2:
+            Console.WriteLine("enter the new Price");
+            string priceUpdate = Console.ReadLine();
+            SqlCommand cmdd2 = new SqlCommand($"Update Burgers Set Price={priceUpdate} where Id={UpdatedburgerId}", sqlConnection);
+            sqlConnection.Open();
+            cmdd2.ExecuteNonQuery();
+            sqlConnection.Close(); break;
+        default:
+            Console.WriteLine("there are only two choices!!");
+            break;
+    }
+
+}
+
+StartApp();
+static bool Check(string name,int price)
+{
+    for (int i = 0; i < name.Length; i++)
+    {
+        if (char.IsDigit(name[i]))
+        {
+            return false;
+        }
+    }
+    if(price<0 || price>100)
+    {
+        return false;
+    }
+    return true;
+    
+}
+#endregion
